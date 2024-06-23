@@ -1,0 +1,103 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    overflow: hidden;
+}
+/* body tag  */
+body {
+    margin: 0px;
+    
+    
+}
+
+/* every elemnt in html */
+
+
+.tool-img {
+    height: 2.8rem;
+}
+.tool{
+    margin: 13px;
+}
+.crosmar{
+    margin-top: 10px;
+    height: 3.5rem;
+}
+
+.toolbar-options {
+    display: flex;
+    border-radius: 10px;
+    margin: 12px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.toolbar {
+    margin-top: 20px;
+ 
+    display        : flex;
+    justify-content: center;
+    gap            : 1em;
+}
+
+.sticky {
+    height: 10rem;
+    width : 6rem;
+
+    /*  */
+    position: absolute;
+    left    : 40vw;
+    top     : 40vh;
+}
+
+.nav {
+    border          : 1px solid black;
+    height          : 20%;
+    background-color: aquamarine;
+    display         : flex;
+    justify-content : flex-end;
+    gap             : 1rem;
+
+}
+
+.text-area {
+    height: 80%;
+    width : 100%;
+}
+
+
+.input-tag {
+    display: none;
+}
+
+.upload-img {
+    height: 80%;
+    width : 100%;
+}
+.sticky{
+    height: 12rem;
+    width: 10rem;
+    position: absolute;
+    left:40vw;
+    top: 50vh;
+}
+.stickyhead{
+   background-color: aqua;
+   display: flex;
+   height: 20%;
+   justify-content: flex-end;
+   align-items: center;
+    border: 1px solid black;
+   gap: 1rem;
+  
+}
+.textaare{
+    height: 80%;
+    width: 100%;
+}
+.uploadfile{
+    display: none;
+}
+.uploadimg{
+    height: 80%;
+    width: 100%;
+}
