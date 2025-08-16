@@ -11,8 +11,9 @@ function getOrCreateRoomId() {
 const ROOM_ID = getOrCreateRoomId();
 
 // Connect to the server, pass room in query
-const socket = io({ query: { room: ROOM_ID } });
-
+const socket = io("https://whiteboard-zsbo.onrender.com", {
+  query: { room: ROOM_ID }
+});
 // Show a quick share hint in console (or make a UI copy button if you want)
 console.log("Share this link:", window.location.href);
 
