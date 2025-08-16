@@ -1,3 +1,49 @@
+function getOrCreateRoomId() {
+  const url = new URL(window.location.href);
+  let room = url.searchParams.get("room");
+  if (!room) {
+    room = Math.random().toString(36).slice(2, 8); // simple 6-char id
+    url.searchParams.set("room", room);
+    window.history.replaceState({}, "", url.toString()); // update URL without reload
+  }
+  return room;
+}
+const ROOM_ID = getOrCreateRoomId();
+
+// Connect to the server, pass room in query
+const socket = io({ query: { room: ROOM_ID } });
+
+// Show a quick share hint in console (or make a UI copy button if you want)
+console.log("Share this link:", window.location.href);
+
+
+const remoteUsers = new Map(); // id -> { drawing, lastX, lastY }
+
+// Convert canvas coords <-> percentages (so it works across different screen sizes)
+function toPct(x, y) {
+  return { xPct: x / canvas.width, yPct: y / canvas.height };
+}
+function fromPct(xPct, yPct) {
+  return { x: xPct * canvas.width, y: yPct * canvas.height };
+}
+
+// Use your existing toolbar offset to convert mouse event -> canvas coords
+function getCanvasCoordsFromEvent(e) {
+  const toolbarheight = getYDelta();
+  const cx = e.clientX;
+  const cy = e.clientY - toolbarheight;
+  return { x: cx, y: cy };
+}
+
+// Bundle the current drawing style (so others see the same look)
+function getCurrentStyle() {
+  return {
+    color: tool.strokeStyle || "black",
+    width: tool.lineWidth || 2,
+    tool: currtool // "pencil" or "eraser"
+  };
+}
+
 // let pencil= document.querySelector("#pencil");
 // let redo= document.querySelector("#redo");
 // let undo= document.querySelector("#undo");
@@ -32,10 +78,11 @@
 let canvas=document.querySelector("#board")
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
-
+// console.log(window.innerWidth+ "  "+ window.innerHeight+"  "+window.outerWidth+"  "+window.outerHeight);
 let tool= canvas.getContext("2d");
 // select all in a better way
 let toolarr= document.querySelectorAll(".tool");
+// console.log(toolarr);
 let currtool="pencil";
 for(let i=0;i<toolarr.length;i++){
     toolarr[i].addEventListener("click",function(e){
@@ -106,7 +153,7 @@ for(let i=0;i<toolarr.length;i++){
 
 // there will be bug bcz of toolbar height
 let to= document.querySelector(".toolbar")
-
+//yha pe getBoundingClientRect kisi ki bhi height dega pure section ki 
 function getYDelta(){
     let heightoftoolbar= to.getBoundingClientRect().height;
     return heightoftoolbar;
@@ -126,54 +173,58 @@ let redostack=[]
 // or use point store
 canvas.addEventListener("mousedown",function(e){
     
-    // console.log("X",e.clientX);
-    // console.log("Y",e.clientY);
-    let sx = e.clientX;
-    let sy = e.clientY;
+    const {x,y}=getCanvasCoordsFromEvent(e);
     //start draw here 
     tool.beginPath();
     //minus the cordinates of toolbar for correct drawing
-    let toolbarheight=getYDelta();
-    
-    tool.moveTo(sx,sy-toolbarheight);
+    tool.moveTo(x,y);
     draw=true;
 
     //getting every cordinate for undo
     let pointdesc={
         desc:"md",
-        x:sx,
-        y:sy-toolbarheight,
+        x:x,
+        y:y,
         
     }
     undostack.push(pointdesc)
+
+
+    //here we will send to others
+    const style = getCurrentStyle();
+    const { xPct, yPct } = toPct(x, y);
+    socket.emit("draw", { type: "md", x: xPct, y: yPct, ...style });
+
 })
 //to keep drawing where evermouse goes
 canvas.addEventListener("mousemove",function(e){
     if(draw==false){
         return 
     }
-    let ex = e.clientX;
-    let ey = e.clientY;
-      //minus the cordinates of toolbar for correct drawing
-      let toolbarheight=getYDelta();
+    const {x,y}=getCanvasCoordsFromEvent(e);
       //end draw heere
-    tool.lineTo(ex,ey-toolbarheight)
+    tool.lineTo(x,y);
     tool.stroke()
 
      //getting every cordinate for undo
      let pointdesc={
         desc:"mm",
-        x:ex,
-        y:ey-toolbarheight,
+        x:x,
+        y:y,
         
     }
     undostack.push(pointdesc)
+
+    const style = getCurrentStyle();
+    const { xPct, yPct } = toPct(x, y);
+    socket.emit("draw", { type: "mm", x: xPct, y: yPct, ...style });
 })
 
 canvas.addEventListener("mouseup",function(e){
     // console.log("X",e.clientX);s
     // console.log("Y",e.clientY);
     draw=false;
+    socket.emit("draw", { type: "mu" });
     // let ex = e.clientX;
     // let ey = e.clientY;
     //   //minus the cordinates of toolbar for correct drawing
@@ -184,7 +235,53 @@ canvas.addEventListener("mouseup",function(e){
   
 })
 
+socket.on("draw", (data) => {
+  const { id, type, color, width, tool: incomingTool } = data;
 
+  if (!remoteUsers.has(id)) {
+    remoteUsers.set(id, { drawing: false, lastX: 0, lastY: 0 });
+  }
+  const state = remoteUsers.get(id);
+
+  // Save local style
+  const prevColor = tool.strokeStyle;
+  const prevWidth = tool.lineWidth;
+
+  // Apply remote style
+  tool.strokeStyle = incomingTool === "eraser" ? "white" : (color || "black");
+  tool.lineWidth = width || 2;
+  tool.lineCap = "round";
+
+  if (type === "md") {
+    const { x, y } = fromPct(data.x, data.y);
+    state.drawing = true;
+    state.lastX = x;
+    state.lastY = y;
+  } else if (type === "mm" && state.drawing) {
+    const { x, y } = fromPct(data.x, data.y);
+    tool.beginPath();
+    tool.moveTo(state.lastX, state.lastY);
+    tool.lineTo(x, y);
+    tool.stroke();
+    state.lastX = x;
+    state.lastY = y;
+  } else if (type === "mu") {
+    state.drawing = false;
+  }
+
+  // Restore local style
+  tool.strokeStyle = prevColor;
+  tool.lineWidth = prevWidth;
+});
+
+socket.on("canvas-state", ({ dataURL }) => {
+    let img = new Image();
+    img.onload = () => {
+        tool.clearRect(0, 0, canvas.width, canvas.height);
+        tool.drawImage(img, 0, 0);
+    };
+    img.src = dataURL;
+});
 function createsticky(){
 // making sticky note dynamic
 
@@ -312,11 +409,12 @@ function downloadfile(){
     a.remove();
 }
 
-function undofn(){
+function undofn(isremote=false){
     
     if(undostack.length>0){
+        // pure rectangle ko clear karne ke liye 
         tool.clearRect(0, 0, canvas.width, canvas.height);
-
+        // fir dubara redraw karo 
         redostack.push(undostack.pop());
         for(let i=0;i<undostack.length;i++){
             let {x,y,desc}=undostack[i]
@@ -329,9 +427,13 @@ function undofn(){
                 tool.stroke()
             }
         }
+        if(!isremote){
+            socket.emit("canvas-state", { dataURL: canvas.toDataURL() });
+        }
     }
+    
 }
-function redofn(){
+function redofn(isremote=false){
     if(redostack.length>0){
         tool.clearRect(0, 0, canvas.width, canvas.height);
         undostack.push(redostack.pop())
@@ -345,6 +447,9 @@ function redofn(){
                 tool.lineTo(x,y);
                 tool.stroke()
             }
+        }
+        if(!isremote){
+            socket.emit("canvas-state", { dataURL: canvas.toDataURL() });
         }
     }
 }
