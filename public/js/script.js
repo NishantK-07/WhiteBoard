@@ -290,8 +290,8 @@ let stickydiv=createroutershell()
 
 let textarea=document.createElement("textarea");
 
-textarea.setAttribute("class","textaare")
-
+textarea.setAttribute("class","sticky-body")
+textarea.placeholder = "Write something...";
 stickydiv.appendChild(textarea);
 //add to page
 
@@ -307,17 +307,19 @@ function createroutershell(){
     let minimize=document.createElement("div");
     let closediv=document.createElement("div");
    
-    //element append
-    stickydiv.setAttribute("class","sticky");
-    stickyhead.setAttribute("class","stickyhead");
-   
-    closediv.innerText="X";
-    minimize.innerText="min"
-    // now make structure
+   stickydiv.setAttribute("class", "sticky");
+    stickyhead.setAttribute("class", "sticky-header");
+    minimize.setAttribute("class", "note-btn");
+    closediv.setAttribute("class", "note-btn");
+
+
+    minimize.innerHTML = "&#8211;"; 
+    closediv.innerHTML = "&#10005;";
+
     stickydiv.appendChild(stickyhead);
-    // stickydiv.appendChild(textarea);
     stickyhead.appendChild(minimize);
     stickyhead.appendChild(closediv);
+
     
     //add to page
     document.body.appendChild(stickydiv)

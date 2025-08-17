@@ -1,103 +1,142 @@
 * {
-    box-sizing: border-box;
-    margin: 0;
-    overflow: hidden;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
-/* body tag  */
+
 body {
-    margin: 0px;
-    
-    
-}
-
-/* every elemnt in html */
-
-
-.tool-img {
-    height: 2.8rem;
-}
-.tool{
-    margin: 13px;
-}
-.crosmar{
-    margin-top: 10px;
-    height: 3.5rem;
-}
-
-.toolbar-options {
-    display: flex;
-    border-radius: 10px;
-    margin: 12px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  margin: 0;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background: white;
+  overflow: hidden;
 }
 
 .toolbar {
-    margin-top: 20px;
- 
-    display        : flex;
-    justify-content: center;
-    gap            : 1em;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 1em;
 }
 
+.toolbar-options {
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.tool {
+  margin: 6px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.tool:hover {
+  background: #f2f2f2;
+}
+
+.tool-img {
+  height: 2.4rem;
+  width: 2.4rem;
+}
+
+.crosmar {
+  margin-top: 6px;
+  height: 2.4rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  background: transparent;
+  transition: all 0.25s ease;
+}
+
+.crosmar:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.crosmar:active {
+  transform: rotate(90deg) scale(0.95);
+  background: rgba(0, 0, 0, 0.12);
+}
 .sticky {
-    height: 10rem;
-    width : 6rem;
-
-    /*  */
-    position: absolute;
-    left    : 40vw;
-    top     : 40vh;
+  width: 260px;
+  height: 230px;
+  background: #fff;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: absolute;
+  top: 40vh;
+  left: 40vw;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  font-family: "Inter", "Segoe UI", sans-serif;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.nav {
-    border          : 1px solid black;
-    height          : 20%;
-    background-color: aquamarine;
-    display         : flex;
-    justify-content : flex-end;
-    gap             : 1rem;
-
+.sticky:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
 }
 
-.text-area {
-    height: 80%;
-    width : 100%;
+.sticky-header {
+  background: linear-gradient(135deg, #f9fafb, #f1f5f9);
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 6px 8px;
+  cursor: grab;
+}
+
+.sticky-header:active {
+  cursor: grabbing;
+}
+
+.note-btn {
+  font-size: 14px;
+  background: #f3f4f6;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.note-btn:hover {
+  background: #e2e8f0;
+  transform: scale(1.05);
+}
+
+.note-btn:active {
+  background: #cbd5e1;
+}
+
+.sticky-body {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  resize: none;
+  color: #1f2937;
+  background: #fff;
+}
+
+.sticky-body::placeholder {
+  color: #9ca3af;
+  font-style: italic;
 }
 
 
-.input-tag {
-    display: none;
-}
-
-.upload-img {
-    height: 80%;
-    width : 100%;
-}
-.sticky{
-    height: 12rem;
-    width: 10rem;
-    position: absolute;
-    left:40vw;
-    top: 50vh;
-}
-.stickyhead{
-   background-color: aqua;
-   display: flex;
-   height: 20%;
-   justify-content: flex-end;
-   align-items: center;
-    border: 1px solid black;
-   gap: 1rem;
-  
-}
-.textaare{
-    height: 80%;
-    width: 100%;
-}
-.uploadfile{
-    display: none;
-}
-.uploadimg{
-    height: 80%;
-    width: 100%;
+.uploadfile {
+  display: none;
 }
